@@ -35,6 +35,27 @@ LOSSNAY_PRESETS = {
     "Auto Lossnay": 3,
 }
 
+VERTICAL_VANE = {
+    0: "Auto",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    7: "Swing",
+}
+
+HORIZONTAL_VANE = {
+    0: "Auto",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    8: "Split",
+    12: "Swing",
+}
+
 
 class MelViewAuthentication:
     """Implementation to remember and refresh MelView cookies."""
@@ -153,6 +174,12 @@ class MelViewDevice:
         self.halfdeg = False
         self.model = None
         self.temp_ranges = {}
+        self.has_vertical_vane = False
+        self.has_horizontal_vane = False
+        self.has_swing = False
+        self.has_auto_vane = False
+        self.vertical_vane_keyed = {}
+        self.horizontal_vane_keyed = {}
 
     async def async_refresh(self):
         await self.async_refresh_device_caps()
@@ -194,6 +221,19 @@ class MelViewDevice:
                         self.model = self._caps["modelname"]
                     if "halfdeg" in self._caps and self._caps["halfdeg"] == 1:
                         self.halfdeg = True
+
+                    # Vane capabilities
+                    self.has_vertical_vane = self._caps.get("hasairdir", 0) == 1
+                    self.has_horizontal_vane = self._caps.get("hasairdirh", 0) == 1
+                    self.has_swing = self._caps.get("hasswing", 0) == 1
+                    self.has_auto_vane = self._caps.get("hasairauto", 0) == 1
+
+                    # Create reverse lookups for vane positions
+                    if self.has_vertical_vane:
+                        self.vertical_vane_keyed = {v: k for k, v in VERTICAL_VANE.items()}
+                    if self.has_horizontal_vane:
+                        self.horizontal_vane_keyed = {v: k for k, v in HORIZONTAL_VANE.items()}
+
                     if "error" in self._caps:
                         if self._caps["error"] != "ok":
                             _LOGGER.warning(

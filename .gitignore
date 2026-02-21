@@ -3,3 +3,4 @@ custom_components/.DS_Store
 __pycache__/
 .mypy_cache/
 *.pyc
+.claude/settings.local.json
