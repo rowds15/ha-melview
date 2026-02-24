@@ -372,6 +372,7 @@ class MelViewDevice:
                 if resp.status == 200:
                     _LOGGER.debug("Command sent to server")
                     data = await resp.json()
+                    _LOGGER.debug("Command response: %s", data)
                 else:
                     req = resp
         if "data" in locals():
@@ -389,6 +390,7 @@ class MelViewDevice:
                         _LOGGER.error("Local command failed")
                 else:
                     _LOGGER.error("Missing local command key")
+                    _LOGGER.debug("Full command response (no lc key): %s", data)
 
             return True
         if req.status == 401 and retry:
@@ -590,7 +592,7 @@ class MelViewDevice:
             _LOGGER.error("Horizontal vane position %s not supported", position_label)
             return False
 
-        return await self.async_send_command(f"AH{code}")
+        return await self.async_send_command("AH{:.2f}".format(code))
 
 
 class MelView:
