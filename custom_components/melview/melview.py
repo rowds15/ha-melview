@@ -604,6 +604,11 @@ class MelViewDevice:
             _LOGGER.error("Horizontal vane position %s not supported", position_label)
             return False
 
+        current_av = self._json.get("airdir") if self._json else None
+        if current_av is not None:
+            return await self.async_send_command(
+                "AH{:.2f}AV{}".format(code, current_av)
+            )
         return await self.async_send_command("AH{:.2f}".format(code))
 
 
